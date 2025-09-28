@@ -19,13 +19,13 @@
       align-items: center;
     }
     h1 {
-      font-size: 6em; /* larger for a display feel */
+      font-size: 6em;
       margin: 0.2em 0;
       font-weight: 700;
       letter-spacing: 2px;
     }
     p {
-      font-size: 5em; /* larger, elegant text */
+      font-size: 5em;
       margin: 0.6em 0;
       padding: 0.3em 0.8em;
       border: 3px dotted #fff;
@@ -43,11 +43,15 @@
   <script>
     function updateTimes(data) {
       try {
-        const shemaTime = data.sofZmanShma
-          ? new Date(data.sofZmanShma).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
+        // Look inside items array for Gra zmanim
+        const shemaItem = data.items.find(item => item.title === "Sof Zman Krias Shema");
+        const tefillahItem = data.items.find(item => item.title === "Sof Zman Tefillah");
+
+        const shemaTime = shemaItem
+          ? new Date(shemaItem.date).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
-        const tefillahTime = data.sofZmanTfilla
-          ? new Date(data.sofZmanTfilla).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
+        const tefillahTime = tefillahItem
+          ? new Date(tefillahItem.date).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
 
         document.getElementById('shemaTime').innerText = shemaTime;
@@ -71,13 +75,18 @@
 
       const script = document.createElement('script');
       script.id = 'zmanimScript';
-      script.src = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5218190&date=${formattedDate}&lg=he&callback=updateTimes`;
+      // JSONP request with English titles for Gra zmanim
+      script.src = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5218190&date=${formattedDate}&callback=updateTimes`;
       document.body.appendChild(script);
     }
 
+    // Initial fetch
     fetchZmanim();
+
+    // Hourly refresh
     setInterval(fetchZmanim, 60*60*1000);
 
+    // Daily refresh at 12:00 PM
     function scheduleDailyRefresh(hour) {
       const now = new Date();
       let next = new Date();
