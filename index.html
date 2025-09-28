@@ -4,18 +4,73 @@
 <meta charset="UTF-8">
 <title>זמני היום - Gra</title>
 <style>
-  body {background:#000;color:#fff;font-family:Alef,sans-serif;text-align:center;padding:2em;direction:rtl;}
-  h1{font-size:3em;margin:0.2em 0;}
-  p.time{font-size:2.5em;margin:0.3em 0;padding:0.3em 0.8em;border:3px dotted #fff;border-radius:10px;}
+  body {
+    background: #000;
+    color: #fff;
+    font-family: Alef, sans-serif;
+    text-align: center;
+    direction: rtl;
+    margin: 0;
+    padding: 1em;
+  }
+  #currentTime {
+    font-size: 5em;
+    margin: 0.1em 0;
+  }
+  h1 {
+    font-size: 4em;
+    margin: 0.1em 0;
+  }
+  p.time {
+    font-size: 6em;
+    margin: 0.05em 0;
+    padding: 0.1em 0.4em;
+    border: 3px dotted #fff;
+    border-radius: 10px;
+    display: inline-block;
+    min-width: 18ch;
+  }
+  span.countdown {
+    font-size: 1.5em;
+    display: block;
+    margin-top: 0.2em;
+  }
 </style>
 </head>
 <body>
+  <div id="currentTime">--:--:--</div>
+
   <h1>סוף זמן קריאת שמע</h1>
-  <p id="shemaTime" class="time">--:--</p>
+  <p id="shemaTime" class="time">--:--<span id="shemaCountdown" class="countdown">--:--:--</span></p>
+
   <h1>סוף זמן תפילה</h1>
-  <p id="tefillahTime" class="time">--:--</p>
+  <p id="tefillahTime" class="time">--:--<span id="tefillahCountdown" class="countdown">--:--:--</span></p>
 
   <script>
+    let shemaTimeValue = null;
+    let tefillahTimeValue = null;
+
+    function updateCurrentTime() {
+      const now = new Date();
+      document.getElementById('currentTime').innerText = now.toLocaleTimeString('he-IL', {hour12:false});
+    }
+
+    function updateCountdowns() {
+      const now = new Date();
+      function formatCountdown(targetTime) {
+        if (!targetTime) return '--:--:--';
+        let diff = Math.max(0, targetTime - now);
+        const hours = String(Math.floor(diff / (1000*60*60))).padStart(2,'0');
+        diff %= 1000*60*60;
+        const minutes = String(Math.floor(diff / (1000*60))).padStart(2,'0');
+        diff %= 1000*60;
+        const seconds = String(Math.floor(diff / 1000)).padStart(2,'0');
+        return `${hours}:${minutes}:${seconds}`;
+      }
+      document.getElementById('shemaCountdown').innerText = formatCountdown(shemaTimeValue);
+      document.getElementById('tefillahCountdown').innerText = formatCountdown(tefillahTimeValue);
+    }
+
     async function fetchZmanim() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -31,21 +86,37 @@
         const shemaRaw = data.times.sofZmanShma;
         const tefillahRaw = data.times.sofZmanTfilla;
 
-        document.getElementById('shemaTime').innerText = shemaRaw
-          ? new Date(shemaRaw).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',hour12:false})
+        shemaTimeValue = shemaRaw ? new Date(shemaRaw) : null;
+        tefillahTimeValue = tefillahRaw ? new Date(tefillahRaw) : null;
+
+        const shemaDisplay = shemaTimeValue
+          ? shemaTimeValue.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
-        document.getElementById('tefillahTime').innerText = tefillahRaw
-          ? new Date(tefillahRaw).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',hour12:false})
+        const tefillahDisplay = tefillahTimeValue
+          ? tefillahTimeValue.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
+
+        document.getElementById('shemaTime').childNodes[0].nodeValue = shemaDisplay;
+        document.getElementById('tefillahTime').childNodes[0].nodeValue = tefillahDisplay;
+
       } catch(err) {
-        document.getElementById('shemaTime').innerText = 'שגיאה';
-        document.getElementById('tefillahTime').innerText = 'שגיאה';
+        document.getElementById('shemaTime').childNodes[0].nodeValue = 'שגיאה';
+        document.getElementById('tefillahTime').childNodes[0].nodeValue = 'שגיאה';
         console.error(err);
       }
     }
 
+    // Initial fetch
     fetchZmanim();
-    setInterval(fetchZmanim,60*60*1000); // refresh every hour
+
+    // Update clocks every second
+    setInterval(() => {
+      updateCurrentTime();
+      updateCountdowns();
+    }, 1000);
+
+    // Refresh Zmanim every hour
+    setInterval(fetchZmanim, 60*60*1000);
   </script>
 </body>
 </html>
