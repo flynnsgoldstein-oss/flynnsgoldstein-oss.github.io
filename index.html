@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>זמני היום - Gra</title>
+<link href="https://fonts.googleapis.com/css2?family=David+Libre&display=swap" rel="stylesheet">
 <style>
   body {
     background: #000;
     color: #fff;
-    font-family: Alef, sans-serif;
+    font-family: 'David Libre', serif;
     text-align: center;
     direction: rtl;
     margin: 0;
@@ -20,6 +21,11 @@
   #currentTime {
     font-size: 4em;
     margin: 0.1em 0;
+  }
+  #currentDate {
+    font-size: 1.5em;
+    margin: 0.1em 0;
+    color: #ccc;
   }
   h1 {
     font-size: 4em;
@@ -35,7 +41,7 @@
     min-width: 18ch;
   }
   span.countdown {
-    font-size: 1em;
+    font-size: 4em; /* 2/3 of main time */
     display: block;
     margin-top: 0.1em;
     color: #ccc;
@@ -45,27 +51,53 @@
 <body>
   <div id="currentTimeLabel">השעה הנוכחית</div>
   <div id="currentTime">--:--:--</div>
+  <div id="currentDate">--/--/----</div>
 
   <h1>סוף זמן קריאת שמע</h1>
-  <p id="shemaTime" class="time">--:--<span id="shemaCountdown" class="countdown">--:--:--</span></p>
+  <p id="shemaTime" class="time">--:--<span id="shemaCountdown" class="countdown">--</span></p>
 
   <h1>סוף זמן תפילה</h1>
-  <p id="tefillahTime" class="time">--:--<span id="tefillahCountdown" class="countdown">--:--:--</span></p>
+  <p id="tefillahTime" class="time">--:--<span id="tefillahCountdown" class="countdown">--</span></p>
 
   <script>
     let shemaTimeValue = null;
     let tefillahTimeValue = null;
+
+    // Get Hebrew Jewish date from Hebcal API
+    async function fetchJewishDate() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      const url = `https://www.hebcal.com/converter?cfg=json&gy=${yyyy}&gm=${mm}&gd=${dd}&g2h=1`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        return `${data.hebrew} (${data.hd}/${data.hm}/${data.hy})`;
+      } catch(e) {
+        console.error('Error fetching Jewish date:', e);
+        return '--';
+      }
+    }
 
     function updateCurrentTime() {
       const now = new Date();
       document.getElementById('currentTime').innerText = now.toLocaleTimeString('he-IL', {hour12:false});
     }
 
+    async function updateCurrentDate() {
+      const jewishDate = await fetchJewishDate();
+      const now = new Date();
+      const gregDate = now.toLocaleDateString('en-US');
+      document.getElementById('currentDate').innerText = `${jewishDate} | ${gregDate}`;
+    }
+
     function updateCountdowns() {
       const now = new Date();
       function formatCountdown(targetTime) {
-        if (!targetTime) return '--:--:--';
-        let diff = Math.max(0, targetTime - now);
+        if (!targetTime) return '--';
+        if (now >= targetTime) return 'עבר זמנו ביטול קרנבו?';
+        let diff = targetTime - now;
         const hours = String(Math.floor(diff / (1000*60*60))).padStart(2,'0');
         diff %= 1000*60*60;
         const minutes = String(Math.floor(diff / (1000*60))).padStart(2,'0');
@@ -83,10 +115,8 @@
       const mm = String(today.getMonth()+1).padStart(2,'0');
       const dd = String(today.getDate()).padStart(2,'0');
       const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5178225&date=${yyyy}-${mm}-${dd}`;
-
       try {
         const res = await fetch(url);
-        if (!res.ok) throw new Error('HTTP error ' + res.status);
         const data = await res.json();
 
         const shemaRaw = data.times.sofZmanShma;
@@ -114,15 +144,19 @@
 
     // Initial fetch
     fetchZmanim();
+    updateCurrentDate();
 
-    // Update clocks and countdowns every second
+    // Update clocks every second
     setInterval(() => {
       updateCurrentTime();
       updateCountdowns();
     }, 1000);
 
-    // Refresh Zmanim every hour
-    setInterval(fetchZmanim, 60*60*1000);
+    // Refresh Zmanim and Jewish date hourly
+    setInterval(() => {
+      fetchZmanim();
+      updateCurrentDate();
+    }, 60*60*1000);
   </script>
 </body>
 </html>
