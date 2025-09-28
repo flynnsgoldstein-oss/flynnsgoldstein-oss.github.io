@@ -12,39 +12,54 @@
     text-align: center;
     direction: rtl;
     margin: 0;
-    padding: 1em;
+    padding: 2vh 1vw;
   }
+
+  /* Current time & date */
   #currentTimeLabel {
-    font-size: 2em;
-    margin: 0.1em 0;
+    font-size: 4vh;
+    margin-bottom: 0.5vh;
   }
   #currentTime {
-    font-size: 4em;
-    margin: 0.1em 0;
+    font-size: 8vh;
+    margin-bottom: 0.5vh;
   }
   #currentDate {
-    font-size: 1.5em;
-    margin: 0.1em 0;
+    font-size: 3vh;
     color: #ccc;
+    margin-bottom: 3vh;
   }
+
+  /* Zman titles */
   h1 {
-    font-size: 4em;
-    margin: 0.1em 0;
+    font-size: 6vh;
+    margin: 2vh 0 1vh 0;
   }
+
+  /* Gra times + countdown container */
+  .time-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 3vh;
+  }
+
+  /* Gra time text */
   p.time {
-    font-size: 6em;  /* Main Gra time */
-    margin: 0.05em 0;
-    padding: 0.1em 0.4em;
+    font-size: 12vh;   /* Maximize horizontally */
+    padding: 0.5vh 2vw;
     border: 3px dotted #fff;
     border-radius: 10px;
-    display: inline-block;
-    min-width: 18ch;
+    margin: 0 1vw 0 0;
+    min-width: 20ch;
   }
+
+  /* Countdown text (2/3 size of main time) */
   span.countdown {
-    font-size: 4em; /* 2/3 of main time (6em) */
-    display: block;
-    margin-top: 0.05em;
+    font-size: 8vh;
+    margin: 0 0 0 1vw;
     color: #ccc;
+    white-space: nowrap;
   }
 </style>
 </head>
@@ -54,10 +69,16 @@
   <div id="currentDate">--/--/----</div>
 
   <h1>סוף זמן קריאת שמע</h1>
-  <p id="shemaTime" class="time">--:--<span id="shemaCountdown" class="countdown">--</span></p>
+  <div class="time-container">
+    <p id="shemaTime" class="time">--:--</p>
+    <span id="shemaCountdown" class="countdown">--</span>
+  </div>
 
   <h1>סוף זמן תפילה</h1>
-  <p id="tefillahTime" class="time">--:--<span id="tefillahCountdown" class="countdown">--</span></p>
+  <div class="time-container">
+    <p id="tefillahTime" class="time">--:--</p>
+    <span id="tefillahCountdown" class="countdown">--</span>
+  </div>
 
   <script>
     let shemaTimeValue = null;
@@ -118,40 +139,31 @@
         const res = await fetch(url);
         const data = await res.json();
 
-        const shemaRaw = data.times.sofZmanShma;
-        const tefillahRaw = data.times.sofZmanTfilla;
+        shemaTimeValue = data.times.sofZmanShma ? new Date(data.times.sofZmanShma) : null;
+        tefillahTimeValue = data.times.sofZmanTfilla ? new Date(data.times.sofZmanTfilla) : null;
 
-        shemaTimeValue = shemaRaw ? new Date(shemaRaw) : null;
-        tefillahTimeValue = tefillahRaw ? new Date(tefillahRaw) : null;
-
-        const shemaDisplay = shemaTimeValue
+        document.getElementById('shemaTime').innerText = shemaTimeValue
           ? shemaTimeValue.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
-        const tefillahDisplay = tefillahTimeValue
+        document.getElementById('tefillahTime').innerText = tefillahTimeValue
           ? tefillahTimeValue.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
 
-        document.getElementById('shemaTime').childNodes[0].nodeValue = shemaDisplay;
-        document.getElementById('tefillahTime').childNodes[0].nodeValue = tefillahDisplay;
-
       } catch(err) {
-        document.getElementById('shemaTime').childNodes[0].nodeValue = 'שגיאה';
-        document.getElementById('tefillahTime').childNodes[0].nodeValue = 'שגיאה';
         console.error(err);
+        document.getElementById('shemaTime').innerText = 'שגיאה';
+        document.getElementById('tefillahTime').innerText = 'שגיאה';
       }
     }
 
-    // Initial fetch
     fetchZmanim();
     updateCurrentDate();
 
-    // Update clocks every second
     setInterval(() => {
       updateCurrentTime();
       updateCountdowns();
     }, 1000);
 
-    // Refresh Zmanim and Jewish date hourly
     setInterval(() => {
       fetchZmanim();
       updateCurrentDate();
