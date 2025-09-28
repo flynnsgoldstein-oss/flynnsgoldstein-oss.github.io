@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
 <meta charset="UTF-8">
-<title>7000זמני היום - Gra</title>
+<title>זמני היום - Gra</title>
 <style>
   body {
     background: #000;
@@ -13,8 +13,12 @@
     margin: 0;
     padding: 1em;
   }
+  #currentTimeLabel {
+    font-size: 2em;
+    margin: 0.1em 0;
+  }
   #currentTime {
-    font-size: 5em;
+    font-size: 4em;
     margin: 0.1em 0;
   }
   h1 {
@@ -31,13 +35,15 @@
     min-width: 18ch;
   }
   span.countdown {
-    font-size: 1.5em;
+    font-size: 1em;
     display: block;
-    margin-top: 0.2em;
+    margin-top: 0.1em;
+    color: #ccc;
   }
 </style>
 </head>
 <body>
+  <div id="currentTimeLabel">השעה הנוכחית</div>
   <div id="currentTime">--:--:--</div>
 
   <h1>סוף זמן קריאת שמע</h1>
@@ -109,7 +115,7 @@
     // Initial fetch
     fetchZmanim();
 
-    // Update clocks every second
+    // Update clocks and countdowns every second
     setInterval(() => {
       updateCurrentTime();
       updateCountdowns();
