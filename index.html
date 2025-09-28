@@ -10,16 +10,22 @@
       text-align: center;
       background: #fff;
       color: #000;
-      direction: rtl; /* Right-to-left for Hebrew */
+      direction: rtl;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
     h1 {
-      font-size: 4em;
-      margin: 0.5em 0;
+      font-size: 5em;
+      margin: 0.2em 0;
       font-weight: 700;
     }
     p {
-      font-size: 3em;
-      margin: 0.3em 0;
+      font-size: 4em;
+      margin: 0.2em 0;
     }
   </style>
 </head>
@@ -32,24 +38,50 @@
   <script>
     async function fetchZmanim() {
       try {
-        const response = await fetch('https://www.hebcal.com/zmanim?cfg=json&geonameid=5128581'); // NYC geonameid
+        const response = await fetch('https://www.hebcal.com/zmanim?cfg=json&geonameid=5128581'); // NYC
         const data = await response.json();
 
-        // Parse ISO times into locale strings (Hebrew)
-        const shemaDate = new Date(data.sofZmanKriasShema);
-        const tefillahDate = new Date(data.sofZmanTefillah);
+        if(data.sofZmanKriasShema && data.sofZmanTefillah){
+          const shema = new Date(data.sofZmanKriasShema);
+          const tefillah = new Date(data.sofZmanTefillah);
 
-        const options = { hour: '2-digit', minute: '2-digit' };
-
-        document.getElementById('shemaTime').innerText = shemaDate.toLocaleTimeString('he-IL', options);
-        document.getElementById('tefillahTime').innerText = tefillahDate.toLocaleTimeString('he-IL', options);
+          const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+          document.getElementById('shemaTime').innerText = shema.toLocaleTimeString('he-IL', options);
+          document.getElementById('tefillahTime').innerText = tefillah.toLocaleTimeString('he-IL', options);
+        } else {
+          document.getElementById('shemaTime').innerText = "לא זמין";
+          document.getElementById('tefillahTime').innerText = "לא זמין";
+        }
       } catch (err) {
         console.error("שגיאה בהבאת הזמנים:", err);
+        document.getElementById('shemaTime').innerText = "שגיאה";
+        document.getElementById('tefillahTime').innerText = "שגיאה";
       }
     }
 
+    // Fetch immediately on load
     fetchZmanim();
-    setInterval(fetchZmanim, 60*60*1000); // עדכון כל שעה
+
+    // Hourly backup refresh
+    setInterval(fetchZmanim, 60*60*1000);
+
+    // Schedule exact refresh at midnight and 12:00 PM
+    function scheduleDailyRefresh(hour) {
+      const now = new Date();
+      let next = new Date();
+      next.setHours(hour, 0, 0, 0);
+      if(now >= next){
+        next.setDate(next.getDate() + 1);
+      }
+      const timeout = next - now;
+      setTimeout(() => {
+        fetchZmanim();
+        scheduleDailyRefresh(hour);
+      }, timeout);
+    }
+
+    scheduleDailyRefresh(0);  // Midnight
+    scheduleDailyRefresh(12); // Noon
   </script>
 </body>
 </html>
