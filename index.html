@@ -61,21 +61,32 @@
     function log(message) {
       const timestamp = new Date().toLocaleTimeString('he-IL', {hour12:false});
       logDiv.innerText += `[${timestamp}] ${message}\n`;
-      logDiv.scrollTop = logDiv.scrollHeight; // auto-scroll
+      logDiv.scrollTop = logDiv.scrollHeight;
       console.log(message);
     }
 
-    function updateTimes(data) {
-      log("updateTimes called with data:");
-      log(JSON.stringify(data, null, 2));
+    async function fetchZmanim() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+      const url = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5178225`;
+      log(`Fetching zmanim from: ${url}`);
 
       try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        const data = await response.json();
+        log("Received data:");
+        log(JSON.stringify(data, null, 2));
+
         const shemaItem = data.items.find(item => item.title === "Sof Zman Krias Shema");
         const tefillahItem = data.items.find(item => item.title === "Sof Zman Tefillah");
 
-        log("Looking for Gra zmanim in items array...");
-        log(`Sof Zman Krias Shema found: ${shemaItem ? "yes" : "no"}`);
-        log(`Sof Zman Tefillah found: ${tefillahItem ? "yes" : "no"}`);
+        log(`Found Sof Zman Krias Shema: ${shemaItem ? "yes" : "no"}`);
+        log(`Found Sof Zman Tefillah: ${tefillahItem ? "yes" : "no"}`);
 
         const shemaTime = shemaItem
           ? new Date(shemaItem.date).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
@@ -87,41 +98,18 @@
         document.getElementById('shemaTime').innerText = shemaTime;
         document.getElementById('tefillahTime').innerText = tefillahTime;
 
-        log(`Sof Zman Krias Shema displayed as: ${shemaTime}`);
-        log(`Sof Zman Tefillah displayed as: ${tefillahTime}`);
+        log(`Displayed Sof Zman Krias Shema: ${shemaTime}`);
+        log(`Displayed Sof Zman Tefillah: ${tefillahTime}`);
 
       } catch (err) {
-        log(`Error parsing data: ${err}`);
+        log(`Error fetching or parsing data: ${err}`);
         document.getElementById('shemaTime').innerText = 'שגיאה';
         document.getElementById('tefillahTime').innerText = 'שגיאה';
       }
     }
 
-    function fetchZmanim() {
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2,'0');
-      const dd = String(today.getDate()).padStart(2,'0');
-      const formattedDate = `${yyyy}-${mm}-${dd}`;
-
-      log(`Fetching zmanim for date: ${formattedDate}`);
-
-      const oldScript = document.getElementById('zmanimScript');
-      if (oldScript) {
-        oldScript.remove();
-        log("Removed previous script element.");
-      }
-
-      const script = document.createElement('script');
-      script.id = 'zmanimScript';
-      script.src = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5218190&date=${formattedDate}&callback=updateTimes`;
-      document.body.appendChild(script);
-
-      log("Injected new JSONP script element for HebCal.");
-    }
-
     fetchZmanim();
-    setInterval(fetchZmanim, 60*60*1000); // hourly refresh
+    setInterval(fetchZmanim, 60*60*1000);
 
     function scheduleDailyRefresh(hour) {
       const now = new Date();
