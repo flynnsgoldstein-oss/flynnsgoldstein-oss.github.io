@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <title>1000זמני היום - Gra</title>
+  <title>זמני היום - Gra + Log</title>
   <link href="https://fonts.googleapis.com/css2?family=David+Libre:wght@400;700&family=Alef:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -12,11 +12,12 @@
       color: #fff;
       direction: rtl;
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
+      padding: 1em;
     }
     h1 {
       font-size: 6em;
@@ -24,28 +25,57 @@
       font-weight: 700;
       letter-spacing: 2px;
     }
-    p {
+    p.time {
       font-size: 5em;
-      margin: 0.6em 0;
+      margin: 0.3em 0;
       padding: 0.3em 0.8em;
       border: 3px dotted #fff;
       border-radius: 15px;
       letter-spacing: 2px;
     }
+    #log {
+      margin-top: 2em;
+      width: 90%;
+      max-height: 300px;
+      overflow-y: scroll;
+      border: 2px solid #fff;
+      padding: 1em;
+      text-align: left;
+      font-size: 1.2em;
+      line-height: 1.4em;
+      white-space: pre-wrap;
+      background: #111;
+    }
   </style>
 </head>
 <body>
   <h1>סוף זמן קריאת שמע</h1>
-  <p id="shemaTime">--:--</p>
+  <p id="shemaTime" class="time">--:--</p>
   <h1>סוף זמן תפילה</h1>
-  <p id="tefillahTime">--:--</p>
+  <p id="tefillahTime" class="time">--:--</p>
+
+  <div id="log"></div>
 
   <script>
+    const logDiv = document.getElementById('log');
+    function log(message) {
+      const timestamp = new Date().toLocaleTimeString('he-IL', {hour12:false});
+      logDiv.innerText += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight; // auto-scroll
+      console.log(message);
+    }
+
     function updateTimes(data) {
+      log("updateTimes called with data:");
+      log(JSON.stringify(data, null, 2));
+
       try {
-        // Look inside items array for Gra zmanim
         const shemaItem = data.items.find(item => item.title === "Sof Zman Krias Shema");
         const tefillahItem = data.items.find(item => item.title === "Sof Zman Tefillah");
+
+        log("Looking for Gra zmanim in items array...");
+        log(`Sof Zman Krias Shema found: ${shemaItem ? "yes" : "no"}`);
+        log(`Sof Zman Tefillah found: ${tefillahItem ? "yes" : "no"}`);
 
         const shemaTime = shemaItem
           ? new Date(shemaItem.date).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
@@ -56,8 +86,12 @@
 
         document.getElementById('shemaTime').innerText = shemaTime;
         document.getElementById('tefillahTime').innerText = tefillahTime;
+
+        log(`Sof Zman Krias Shema displayed as: ${shemaTime}`);
+        log(`Sof Zman Tefillah displayed as: ${tefillahTime}`);
+
       } catch (err) {
-        console.error('Error parsing data:', err);
+        log(`Error parsing data: ${err}`);
         document.getElementById('shemaTime').innerText = 'שגיאה';
         document.getElementById('tefillahTime').innerText = 'שגיאה';
       }
@@ -70,23 +104,25 @@
       const dd = String(today.getDate()).padStart(2,'0');
       const formattedDate = `${yyyy}-${mm}-${dd}`;
 
+      log(`Fetching zmanim for date: ${formattedDate}`);
+
       const oldScript = document.getElementById('zmanimScript');
-      if (oldScript) oldScript.remove();
+      if (oldScript) {
+        oldScript.remove();
+        log("Removed previous script element.");
+      }
 
       const script = document.createElement('script');
       script.id = 'zmanimScript';
-      // JSONP request with English titles for Gra zmanim
       script.src = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5218190&date=${formattedDate}&callback=updateTimes`;
       document.body.appendChild(script);
+
+      log("Injected new JSONP script element for HebCal.");
     }
 
-    // Initial fetch
     fetchZmanim();
+    setInterval(fetchZmanim, 60*60*1000); // hourly refresh
 
-    // Hourly refresh
-    setInterval(fetchZmanim, 60*60*1000);
-
-    // Daily refresh at 12:00 PM
     function scheduleDailyRefresh(hour) {
       const now = new Date();
       let next = new Date();
@@ -94,9 +130,11 @@
       if (now >= next) next.setDate(next.getDate()+1);
       const timeout = next - now;
       setTimeout(() => {
+        log("Daily refresh triggered.");
         fetchZmanim();
         scheduleDailyRefresh(hour);
       }, timeout);
+      log(`Scheduled next daily refresh at hour ${hour}.`);
     }
 
     scheduleDailyRefresh(12);
