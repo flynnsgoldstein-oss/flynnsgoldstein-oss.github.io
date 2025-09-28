@@ -2,7 +2,7 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8">
-  <title>500תצוגת זמני היום</title>
+  <title>5000תצוגת זמני היום</title>
   <link href="https://fonts.googleapis.com/css2?family=David+Libre:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -41,11 +41,13 @@
   <script>
     function updateTimes(data) {
       try {
-        const shemaItem = data.items.find(item => item.title === "Sof Zman Krias Shema");
-        const tefillahItem = data.items.find(item => item.title === "Sof Zman Tefillah");
-
-        const shemaTime = shemaItem ? new Date(shemaItem.date).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false}) : 'לא זמין';
-        const tefillahTime = tefillahItem ? new Date(tefillahItem.date).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false}) : 'לא זמין';
+        // Gra zmanim fields
+        const shemaTime = data.sofZmanShma
+          ? new Date(data.sofZmanShma).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
+          : 'לא זמין';
+        const tefillahTime = data.sofZmanTfilla
+          ? new Date(data.sofZmanTfilla).toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
+          : 'לא זמין';
 
         document.getElementById('shemaTime').innerText = shemaTime;
         document.getElementById('tefillahTime').innerText = tefillahTime;
@@ -69,8 +71,8 @@
 
       const script = document.createElement('script');
       script.id = 'zmanimScript';
-      // Using JSONP callback=updateTimes
-      script.src = `https://www.hebcal.com/zmanim?cfg=json&zip=19002&date=${formattedDate}&callback=updateTimes`;
+      // JSONP request using Gra zmanim and geonameid=5218190 (Philadelphia)
+      script.src = `https://www.hebcal.com/zmanim?cfg=json&geonameid=5218190&date=${formattedDate}&callback=updateTimes`;
       document.body.appendChild(script);
     }
 
@@ -80,7 +82,7 @@
     // Hourly backup refresh
     setInterval(fetchZmanim, 60*60*1000);
 
-    // Refresh exactly at 12:00 PM daily
+    // Refresh daily at 12:00 PM
     function scheduleDailyRefresh(hour) {
       const now = new Date();
       let next = new Date();
