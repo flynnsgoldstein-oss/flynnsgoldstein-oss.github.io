@@ -36,7 +36,7 @@
     margin: 2vh 0 1vh 0;
   }
 
-  /* Gra time container */
+  /* Time container */
   .time-container {
     display: flex;
     flex-direction: column;
@@ -44,7 +44,7 @@
     margin-bottom: 3vh;
   }
 
-  /* Gra time text */
+  /* Main time */
   p.time {
     font-size: 12vh;   /* Maximize horizontally */
     padding: 0.5vh 2vw;
@@ -54,7 +54,7 @@
     min-width: 20ch;
   }
 
-  /* Countdown text (2/3 size of main time) */
+  /* Countdown (2/3 size of main time) */
   span.countdown {
     font-size: 8vh;
     margin-top: 0.5vh;
@@ -80,7 +80,14 @@
     <span id="tefillahCountdown" class="countdown">--</span>
   </div>
 
+  <h1>שקיעה</h1>
+  <div class="time-container">
+    <p id="sunsetTime" class="time">--:--</p>
+    <span id="sunsetCountdown" class="countdown">--</span>
+  </div>
+
   <script>
+    let sunsetTimeValue = null;
     let shemaTimeValue = null;
     let tefillahTimeValue = null;
 
@@ -112,21 +119,23 @@
       document.getElementById('currentDate').innerText = `${jewishDate} | ${gregDate}`;
     }
 
+    function formatCountdown(now, targetTime) {
+      if (!targetTime) return '--';
+      if (now >= targetTime) return 'עבר זמנו ביטול קרנבו?';
+      let diff = targetTime - now;
+      const hours = String(Math.floor(diff / (1000*60*60))).padStart(2,'0');
+      diff %= 1000*60*60;
+      const minutes = String(Math.floor(diff / (1000*60))).padStart(2,'0');
+      diff %= 1000*60;
+      const seconds = String(Math.floor(diff / 1000)).padStart(2,'0');
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
     function updateCountdowns() {
       const now = new Date();
-      function formatCountdown(targetTime) {
-        if (!targetTime) return '--';
-        if (now >= targetTime) return 'עבר זמנו ביטול קרנבו?';
-        let diff = targetTime - now;
-        const hours = String(Math.floor(diff / (1000*60*60))).padStart(2,'0');
-        diff %= 1000*60*60;
-        const minutes = String(Math.floor(diff / (1000*60))).padStart(2,'0');
-        diff %= 1000*60;
-        const seconds = String(Math.floor(diff / 1000)).padStart(2,'0');
-        return `${hours}:${minutes}:${seconds}`;
-      }
-      document.getElementById('shemaCountdown').innerText = formatCountdown(shemaTimeValue);
-      document.getElementById('tefillahCountdown').innerText = formatCountdown(tefillahTimeValue);
+      document.getElementById('sunsetCountdown').innerText = formatCountdown(now, sunsetTimeValue);
+      document.getElementById('shemaCountdown').innerText = formatCountdown(now, shemaTimeValue);
+      document.getElementById('tefillahCountdown').innerText = formatCountdown(now, tefillahTimeValue);
     }
 
     async function fetchZmanim() {
@@ -139,18 +148,25 @@
         const res = await fetch(url);
         const data = await res.json();
 
+        sunsetTimeValue = data.times.sunset ? new Date(data.times.sunset) : null;
         shemaTimeValue = data.times.sofZmanShma ? new Date(data.times.sofZmanShma) : null;
         tefillahTimeValue = data.times.sofZmanTfilla ? new Date(data.times.sofZmanTfilla) : null;
+
+        document.getElementById('sunsetTime').innerText = sunsetTimeValue
+          ? sunsetTimeValue.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
+          : 'לא זמין';
 
         document.getElementById('shemaTime').innerText = shemaTimeValue
           ? shemaTimeValue.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
+
         document.getElementById('tefillahTime').innerText = tefillahTimeValue
           ? tefillahTimeValue.toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit', hour12:false})
           : 'לא זמין';
 
       } catch(err) {
         console.error(err);
+        document.getElementById('sunsetTime').innerText = 'שגיאה';
         document.getElementById('shemaTime').innerText = 'שגיאה';
         document.getElementById('tefillahTime').innerText = 'שגיאה';
       }
