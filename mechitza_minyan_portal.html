@@ -104,6 +104,146 @@
     border-bottom: 3px solid var(--barrack-gold);
     background: rgba(255,255,255,0.04);
   }
+  nav.menu-bar a.menu-right {
+    margin-left: auto;
+    color: var(--barrack-gold-light);
+  }
+  nav.menu-bar a.menu-right:hover {
+    color: var(--barrack-white);
+    border-bottom: 3px solid var(--barrack-gold);
+  }
+
+  /* ---------- Password modal ---------- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 23, 41, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay[hidden] {
+    display: none;
+  }
+  .modal-box {
+    background: var(--barrack-white);
+    border-radius: 8px;
+    padding: 32px 30px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  .modal-box h3 {
+    color: var(--barrack-navy);
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+  }
+  .modal-box p {
+    color: #55606e;
+    font-size: 0.88rem;
+    margin: 0 0 18px;
+  }
+  .modal-box input[type="password"] {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #d3cfc2;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fdfcf9;
+  }
+  .modal-error {
+    color: #b3261e;
+    font-size: 0.8rem;
+    margin-top: 8px;
+  }
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .btn-outline-navy {
+    background: transparent;
+    color: var(--barrack-navy);
+    border: 1px solid #c7c2b3;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 12px 22px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn-outline-navy:hover { background: #f2efe6; }
+
+  /* ---------- Rabbi/Gabbi portal page ---------- */
+  .portal-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+  .portal-page h2 {
+    color: var(--barrack-navy);
+    font-size: 1.6rem;
+    margin: 20px 0 6px;
+  }
+  .portal-page p { color: #3b4552; }
+  .sheet-embed {
+    margin-top: 18px;
+    border: 1px solid #e6e2d8;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--barrack-white);
+  }
+  .sheet-embed iframe {
+    width: 100%;
+    height: 75vh;
+    min-height: 480px;
+    border: none;
+    display: block;
+  }
+
+  .admin-link {
+    color: var(--barrack-gray);
+    text-decoration: underline;
+    font-size: 0.85em;
+  }
+  .admin-link:hover { color: var(--barrack-navy); }
+
+  .admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 380px;
+    margin-top: 18px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  .admin-form label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--barrack-navy);
+    margin-bottom: 6px;
+  }
+  .admin-form input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d3cfc2;
+    border-radius: 4px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    background: #fdfcf9;
+  }
+  .admin-success {
+    color: #1e7a3a;
+    font-size: 0.85rem;
+    background: #eaf6ee;
+    border-left: 3px solid #1e7a3a;
+    padding: 8px 12px;
+  }
 
   /* ---------- Intro ---------- */
   .intro {
@@ -326,8 +466,11 @@
     <a href="#signup">Sign Up</a>
     <a href="#resources">Resources</a>
     <a href="#contact">Contact</a>
+    <a href="#" id="rabbiPortalTab" class="menu-right">Rabbi/Gabbi Portal</a>
   </div>
 </nav>
+
+<div id="siteContent">
 
 <div class="intro">
   <p class="lede">
@@ -476,7 +619,254 @@
   </aside>
 </main>
 
-<p class="page-footnote">Jack M. Barrack Hebrew Academy &middot; Mechitza Minyan Portal</p>
+<p class="page-footnote">
+  Jack M. Barrack Hebrew Academy &middot; Mechitza Minyan Portal
+  &middot; <a href="#" id="adminSettingsLink" class="admin-link">Admin Settings</a>
+</p>
+
+</div><!-- /#siteContent -->
+
+<!-- ============ Rabbi/Gabbi Portal (password protected) ============ -->
+<section id="rabbiPortalPage" class="portal-page" hidden>
+  <div class="portal-page-inner">
+    <button type="button" id="portalBackBtn" class="btn btn-outline-navy">&larr; Back to Mechitza Minyan Portal</button>
+    <h2>Rabbi/Gabbi Portal</h2>
+    <p>Shared tracking sheet for davening, leyning, and aliyah assignments. Editable by rabbeim and gabbaim.</p>
+    <div class="sheet-embed">
+      <iframe
+        src="https://docs.google.com/spreadsheets/d/1EUUzFOvKNNzAQcL_6VmwAYss_xSNGk8APyKrqZYvzLo/preview"
+        loading="lazy"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <p class="placeholder" style="margin-top:16px;">
+      [Placeholder: This embeds the live Google Sheet. Make sure its sharing setting is "Anyone with the link"
+      (Viewer or Editor, as appropriate) or the embed will show an access-denied screen instead of the sheet.]
+    </p>
+  </div>
+</section>
+
+<!-- ============ Admin Settings page (change portal password) ============ -->
+<section id="adminPage" class="portal-page" hidden>
+  <div class="portal-page-inner">
+    <button type="button" id="adminBackBtn" class="btn btn-outline-navy">&larr; Back to Mechitza Minyan Portal</button>
+    <h2>Admin Settings</h2>
+    <p>Change the password used to access the Rabbi/Gabbi Portal.</p>
+
+    <form id="changePasswordForm" class="admin-form">
+      <div>
+        <label for="newPassword1">New Rabbi/Gabbi Portal Password</label>
+        <input type="password" id="newPassword1" autocomplete="off" required>
+      </div>
+      <div>
+        <label for="newPassword2">Confirm New Password</label>
+        <input type="password" id="newPassword2" autocomplete="off" required>
+      </div>
+      <div id="adminFormError" class="modal-error" hidden></div>
+      <div id="adminFormSuccess" class="admin-success" hidden>Password updated successfully.</div>
+      <div class="modal-actions" style="justify-content:flex-start;">
+        <button type="submit" class="btn btn-gold">Save New Password</button>
+      </div>
+    </form>
+
+    <p class="placeholder" style="margin-top:24px;">
+      [Placeholder / important note: This is a static HTML file with no server or database, so the password
+      is saved in this browser's local storage only. It will apply on this device/browser going forward, but
+      will NOT sync to other computers or to visitors' own browsers &mdash; everyone else will still see the
+      password as it was set in the file itself (default: 1234) until you edit that value directly in the
+      source code, or this page is rebuilt with real backend authentication.]
+    </p>
+  </div>
+</section>
+
+<!-- ============ Admin login modal ============ -->
+<div id="adminModal" class="modal-overlay" hidden>
+  <div class="modal-box">
+    <h3>Admin Settings</h3>
+    <p>Enter the admin password to manage the Rabbi/Gabbi Portal password.</p>
+    <form id="adminPasswordForm">
+      <input type="password" id="adminPasswordInput" placeholder="Admin password" autocomplete="off">
+      <div id="adminError" class="modal-error" hidden>Incorrect password. Please try again.</div>
+      <div class="modal-actions">
+        <button type="button" id="adminCancelBtn" class="btn btn-outline-navy">Cancel</button>
+        <button type="submit" class="btn btn-gold">Enter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ Password modal ============ -->
+<div id="passwordModal" class="modal-overlay" hidden>
+  <div class="modal-box">
+    <h3>Rabbi/Gabbi Portal</h3>
+    <p>This area is restricted to rabbeim and gabbaim. Enter the password to continue.</p>
+    <form id="portalPasswordForm">
+      <input type="password" id="portalPasswordInput" placeholder="Password" autocomplete="off">
+      <div id="portalError" class="modal-error" hidden>Incorrect password. Please try again.</div>
+      <div class="modal-actions">
+        <button type="button" id="portalCancelBtn" class="btn btn-outline-navy">Cancel</button>
+        <button type="submit" class="btn btn-gold">Enter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // NOTE: This is a simple client-side gate for casual access control only —
+    // it is NOT real security. Anyone who views this page's source can read the
+    // default password and the admin password below. Changing the password via
+    // Admin Settings only updates it in THIS browser's local storage — it does
+    // not change it for other visitors or other devices. For genuine protection,
+    // the Google Sheet should also have its own restricted sharing settings.
+    var DEFAULT_PORTAL_PASSWORD = "1234";
+    var ADMIN_PASSWORD = "Flynn";
+    var STORAGE_KEY = "rabbiPortalPassword";
+
+    function getPortalPassword() {
+      return localStorage.getItem(STORAGE_KEY) || DEFAULT_PORTAL_PASSWORD;
+    }
+    function setPortalPassword(pw) {
+      localStorage.setItem(STORAGE_KEY, pw);
+    }
+
+    var siteContent = document.getElementById('siteContent');
+    var portalPage = document.getElementById('rabbiPortalPage');
+    var adminPage = document.getElementById('adminPage');
+
+    function showView(viewToShow) {
+      siteContent.hidden = (viewToShow !== siteContent);
+      portalPage.hidden = (viewToShow !== portalPage);
+      adminPage.hidden = (viewToShow !== adminPage);
+      window.scrollTo(0, 0);
+    }
+
+    // ---------- Rabbi/Gabbi Portal ----------
+    var rabbiTab = document.getElementById('rabbiPortalTab');
+    var portalModal = document.getElementById('passwordModal');
+    var portalForm = document.getElementById('portalPasswordForm');
+    var portalInput = document.getElementById('portalPasswordInput');
+    var portalError = document.getElementById('portalError');
+    var portalCancelBtn = document.getElementById('portalCancelBtn');
+    var portalBackBtn = document.getElementById('portalBackBtn');
+
+    function openPortalModal() {
+      portalModal.hidden = false;
+      portalError.hidden = true;
+      portalInput.value = '';
+      setTimeout(function () { portalInput.focus(); }, 50);
+    }
+    function closePortalModal() {
+      portalModal.hidden = true;
+    }
+
+    rabbiTab.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (sessionStorage.getItem('rabbiPortalUnlocked') === '1') {
+        showView(portalPage);
+      } else {
+        openPortalModal();
+      }
+    });
+
+    portalForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (portalInput.value === getPortalPassword()) {
+        sessionStorage.setItem('rabbiPortalUnlocked', '1');
+        closePortalModal();
+        showView(portalPage);
+      } else {
+        portalError.hidden = false;
+        portalInput.value = '';
+        portalInput.focus();
+      }
+    });
+
+    portalCancelBtn.addEventListener('click', closePortalModal);
+    portalBackBtn.addEventListener('click', function () { showView(siteContent); });
+    portalModal.addEventListener('click', function (e) {
+      if (e.target === portalModal) closePortalModal();
+    });
+
+    // ---------- Admin Settings ----------
+    var adminLink = document.getElementById('adminSettingsLink');
+    var adminModal = document.getElementById('adminModal');
+    var adminForm = document.getElementById('adminPasswordForm');
+    var adminInput = document.getElementById('adminPasswordInput');
+    var adminError = document.getElementById('adminError');
+    var adminCancelBtn = document.getElementById('adminCancelBtn');
+    var adminBackBtn = document.getElementById('adminBackBtn');
+
+    var changePasswordForm = document.getElementById('changePasswordForm');
+    var newPassword1 = document.getElementById('newPassword1');
+    var newPassword2 = document.getElementById('newPassword2');
+    var adminFormError = document.getElementById('adminFormError');
+    var adminFormSuccess = document.getElementById('adminFormSuccess');
+
+    function openAdminModal() {
+      adminModal.hidden = false;
+      adminError.hidden = true;
+      adminInput.value = '';
+      setTimeout(function () { adminInput.focus(); }, 50);
+    }
+    function closeAdminModal() {
+      adminModal.hidden = true;
+    }
+
+    adminLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      openAdminModal();
+    });
+
+    adminForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (adminInput.value === ADMIN_PASSWORD) {
+        closeAdminModal();
+        adminFormSuccess.hidden = true;
+        adminFormError.hidden = true;
+        newPassword1.value = '';
+        newPassword2.value = '';
+        showView(adminPage);
+      } else {
+        adminError.hidden = false;
+        adminInput.value = '';
+        adminInput.focus();
+      }
+    });
+
+    adminCancelBtn.addEventListener('click', closeAdminModal);
+    adminBackBtn.addEventListener('click', function () { showView(siteContent); });
+    adminModal.addEventListener('click', function (e) {
+      if (e.target === adminModal) closeAdminModal();
+    });
+
+    changePasswordForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      adminFormError.hidden = true;
+      adminFormSuccess.hidden = true;
+
+      var pw1 = newPassword1.value;
+      var pw2 = newPassword2.value;
+
+      if (pw1.length < 1) {
+        adminFormError.textContent = 'Please enter a new password.';
+        adminFormError.hidden = false;
+        return;
+      }
+      if (pw1 !== pw2) {
+        adminFormError.textContent = 'Passwords do not match. Please try again.';
+        adminFormError.hidden = false;
+        return;
+      }
+
+      setPortalPassword(pw1);
+      sessionStorage.removeItem('rabbiPortalUnlocked'); // require the new password next time
+      newPassword1.value = '';
+      newPassword2.value = '';
+      adminFormSuccess.hidden = false;
+    });
+  })();
+</script>
 
 </body>
 </html>
