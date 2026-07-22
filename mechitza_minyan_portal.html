@@ -1,1 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Mechitza Minyan Portal - Jack M Barrack Hebrew Academy</title>
+<meta name="description" content="Mechitza Minyan Portal - schedules, sign-ups, and resources for the Mechitza Minyan at Jack M. Barrack Hebrew Academy.">
+<style>
+  :root {
+    --barrack-navy: #0d2240;
+    --barrack-navy-dark: #081729;
+    --barrack-gold: #c8a24a;
+    --barrack-gold-light: #e6d3a3;
+    --barrack-gray: #55606e;
+    --barrack-bg: #f6f5f1;
+    --barrack-white: #ffffff;
+  }
 
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    color: #24303f;
+    background: var(--barrack-bg);
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, .nav-label, .btn, .breadcrumb {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- Skip link ---------- */
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: auto;
+  }
+  .skip-link:focus {
+    left: 10px;
+    top: 10px;
+    background: var(--barrack-white);
+    padding: 8px 14px;
+    z-index: 999;
+    border-radius: 4px;
+  }
+
+  /* ---------- Top bar (logo + page title) ---------- */
+  .topbar {
+    background: var(--barrack-white);
+    border-bottom: 3px solid var(--barrack-gold);
+  }
+  .topbar-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .brand-mark {
+    height: 56px;
+    width: auto;
+    max-width: 220px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .page-title {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--barrack-navy);
+    letter-spacing: 0.01em;
+    padding-left: 20px;
+    border-left: 1px solid #e2ddd0;
+  }
+
+  /* ---------- Menu bar ---------- */
+  nav.menu-bar {
+    background: var(--barrack-navy);
+  }
+  .menu-bar-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  nav.menu-bar a {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #dbe3ee;
+    padding: 14px 18px;
+    display: inline-block;
+    border-bottom: 3px solid transparent;
+  }
+  nav.menu-bar a:hover,
+  nav.menu-bar a.current {
+    color: var(--barrack-white);
+    border-bottom: 3px solid var(--barrack-gold);
+    background: rgba(255,255,255,0.04);
+  }
+
+  /* ---------- Intro ---------- */
+  .intro {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 24px 0;
+  }
+  .intro p.lede {
+    max-width: 720px;
+    font-size: 1.08rem;
+    color: #3b4552;
+    margin: 0 0 26px;
+  }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; }
+  .btn {
+    display: inline-block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn-gold {
+    background: var(--barrack-gold);
+    color: var(--barrack-navy-dark);
+  }
+  .btn-gold:hover { background: var(--barrack-gold-light); }
+  .btn-outline {
+    background: transparent;
+    color: var(--barrack-white);
+    border: 1px solid rgba(255,255,255,0.55);
+  }
+  .btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+  /* ---------- Layout ---------- */
+  .page-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 24px 20px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 44px;
+  }
+  @media (max-width: 860px) {
+    .page-wrap { grid-template-columns: 1fr; }
+  }
+
+  section.card {
+    background: var(--barrack-white);
+    border: 1px solid #e6e2d8;
+    border-radius: 8px;
+    padding: 32px 34px;
+    margin-bottom: 30px;
+  }
+  section.card h2 {
+    color: var(--barrack-navy);
+    font-size: 1.4rem;
+    margin-top: 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--barrack-gold-light);
+  }
+  section.card h3 {
+    color: var(--barrack-navy);
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+  }
+  section.card p { color: #3b4552; }
+  .placeholder {
+    background: #fbf6e7;
+    border-left: 3px solid var(--barrack-gold);
+    padding: 4px 10px;
+    font-style: italic;
+    color: #7a6320;
+    font-size: 0.92em;
+  }
+
+  /* ---------- Schedule table ---------- */
+  table.schedule {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.92rem;
+    margin-top: 14px;
+  }
+  table.schedule th {
+    background: var(--barrack-navy);
+    color: var(--barrack-white);
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+  }
+  table.schedule td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #ece8dd;
+    color: #3b4552;
+  }
+  table.schedule tr:nth-child(even) td { background: #faf9f5; }
+
+  /* ---------- Sign-up form ---------- */
+  form.signup {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+    margin-top: 16px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+  }
+  form.signup .full { grid-column: 1 / -1; }
+  form.signup label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--barrack-navy);
+    margin-bottom: 6px;
+  }
+  form.signup input,
+  form.signup select,
+  form.signup textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d3cfc2;
+    border-radius: 4px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    background: #fdfcf9;
+  }
+  form.signup textarea { resize: vertical; min-height: 80px; }
+  form.signup .submit-row { grid-column: 1 / -1; margin-top: 6px; }
+  form.signup button {
+    border: none;
+    font-family: inherit;
+  }
+
+  /* ---------- Resource list ---------- */
+  ul.resource-list { list-style: none; padding: 0; margin: 14px 0 0; }
+  ul.resource-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid #ece8dd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  ul.resource-list li:last-child { border-bottom: none; }
+  ul.resource-list .res-name { font-weight: 600; color: var(--barrack-navy); }
+  ul.resource-list .res-tag {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--barrack-gold-light);
+    color: #6b5518;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* ---------- Sidebar ---------- */
+  aside .card { padding: 26px 26px; }
+  .info-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #ece8dd;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.9rem;
+  }
+  .info-item:last-child { border-bottom: none; }
+  .info-icon {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--barrack-navy);
+    color: var(--barrack-gold-light);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+  }
+  .info-item .label { color: var(--barrack-gray); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em;}
+  .info-item .value { color: #24303f; font-weight: 600; }
+
+  .contact-card {
+    background: var(--barrack-navy);
+    color: var(--barrack-white);
+  }
+  .contact-card h2 { color: var(--barrack-white); border-bottom-color: rgba(255,255,255,0.2); }
+  .contact-card p { color: #cfd8e3; }
+  .contact-card a.email { color: var(--barrack-gold-light); font-weight: 600; }
+
+  /* ---------- Simple closing note ---------- */
+  .page-footnote {
+    max-width: 1180px;
+    margin: 10px auto 40px;
+    padding: 0 24px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.75rem;
+    color: var(--barrack-gray);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip To Main Content</a>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <img
+      class="brand-mark"
+      src="https://resources.finalsite.net/images/v1740578659/jbhaorg/vhasmacyx5pj6rt7x2zb/BasicLogo.png"
+      alt="Jack M. Barrack Hebrew Academy logo"
+      referrerpolicy="no-referrer">
+    <div class="page-title">Mechitza Minyan Portal</div>
+  </div>
+</div>
+
+<nav class="menu-bar">
+  <div class="menu-bar-inner">
+    <a href="#about" class="current">About</a>
+    <a href="#schedule">Schedule</a>
+    <a href="#signup">Sign Up</a>
+    <a href="#resources">Resources</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="intro">
+  <p class="lede">
+    A home base for the Barrack community's mechitza minyan — daily shaharit schedules,
+    leining and davening sign-ups, and resources for students who choose this option
+    as part of Barrack's pluralistic tefillah program.
+  </p>
+  <div class="hero-actions">
+    <a href="#signup" class="btn btn-gold">Sign Up to Lead / Participate</a>
+    <a href="#schedule" class="btn btn-outline" style="color:var(--barrack-navy);border-color:var(--barrack-navy);">View Schedule</a>
+  </div>
+</div>
+
+<main id="main-content" class="page-wrap">
+  <div class="main-col">
+
+    <section class="card" id="about">
+      <h2>About the Mechitza Minyan</h2>
+      <p>
+        The Mechitza Minyan is one of the tefillah (prayer) options offered each morning as part of
+        Barrack's Shaharit program, providing students who daven with a mechitza a traditional,
+        halachic minyan experience within our pluralistic community.
+      </p>
+      <p class="placeholder">
+        [Placeholder: Add a short welcome paragraph describing the minyan's philosophy, who runs it,
+        and how it fits alongside Barrack's other tefillah options. Consider linking to the main
+        Shaharit page at jbha.org/fs/pages/1772.]
+      </p>
+    </section>
+
+    <section class="card" id="schedule">
+      <h2>Weekly Schedule</h2>
+      <p>Mechitza Minyan meets daily during the school's designated tefillah period.</p>
+      <table class="schedule">
+        <thead>
+          <tr><th>Day</th><th>Time</th><th>Location</th><th>Leader</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Monday</td><td>8:00 – 8:25 AM</td><td>Beit Midrash</td><td class="placeholder">TBD</td></tr>
+          <tr><td>Tuesday</td><td>8:00 – 8:25 AM</td><td>Beit Midrash</td><td class="placeholder">TBD</td></tr>
+          <tr><td>Wednesday</td><td>8:00 – 8:25 AM</td><td>Beit Midrash</td><td class="placeholder">TBD</td></tr>
+          <tr><td>Thursday</td><td>8:00 – 8:25 AM</td><td>Beit Midrash (with Torah reading)</td><td class="placeholder">TBD</td></tr>
+          <tr><td>Friday</td><td>8:00 – 8:20 AM</td><td>Beit Midrash</td><td class="placeholder">TBD</td></tr>
+        </tbody>
+      </table>
+      <p class="placeholder">[Placeholder: Confirm exact times, room, and rotating student/faculty leaders.]</p>
+    </section>
+
+    <section class="card" id="signup">
+      <h2>Sign Up</h2>
+      <p>Use this form to volunteer to lead davening, leyn, or receive an aliyah/honor at an upcoming Mechitza Minyan.</p>
+      <form class="signup" onsubmit="return false;">
+        <div>
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required>
+        </div>
+        <div>
+          <label for="grade">Grade</label>
+          <select id="grade" name="grade">
+            <option>6</option><option>7</option><option>8</option>
+            <option>9</option><option>10</option><option>11</option><option>12</option>
+            <option>Faculty/Staff</option>
+          </select>
+        </div>
+        <div>
+          <label for="date">Preferred Date</label>
+          <input type="date" id="date" name="date">
+        </div>
+        <div>
+          <label for="role">Role</label>
+          <select id="role" name="role">
+            <option>Lead Shaharit</option>
+            <option>Leyning (Torah Reading)</option>
+            <option>Aliyah / Honor</option>
+            <option>Gabbai</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="full">
+          <label for="notes">Notes</label>
+          <textarea id="notes" name="notes" placeholder="Anything the gabbai should know (e.g., parsha portion, first time leading, etc.)"></textarea>
+        </div>
+        <div class="submit-row">
+          <button type="submit" class="btn btn-gold">Submit Sign-Up</button>
+        </div>
+      </form>
+      <p class="placeholder">
+        [Placeholder: This form is a static template. Connect it to Google Forms, SignUpGenius, or your
+        school's form backend before publishing — see the "Publishing Notes" section below.]
+      </p>
+    </section>
+
+    <section class="card" id="resources">
+      <h2>Resources</h2>
+      <ul class="resource-list">
+        <li><span class="res-name">Weekday Shaharit Siddur (PDF)</span><span class="res-tag placeholder">Add link</span></li>
+        <li><span class="res-name">Leyning Trope Practice Recordings</span><span class="res-tag placeholder">Add link</span></li>
+        <li><span class="res-name">Torah Reading Schedule (5786 / 2025–26)</span><span class="res-tag placeholder">Add link</span></li>
+        <li><span class="res-name">Gabbai Contact Sheet</span><span class="res-tag placeholder">Add link</span></li>
+      </ul>
+    </section>
+
+  </div>
+
+  <aside>
+    <section class="card">
+      <h2>Quick Info</h2>
+      <div class="info-item">
+        <div class="info-icon">T</div>
+        <div>
+          <div class="label">Meets</div>
+          <div class="value">Daily, 8:00 – 8:25 AM</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">L</div>
+        <div>
+          <div class="label">Location</div>
+          <div class="value">Beit Midrash</div>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">G</div>
+        <div>
+          <div class="label">Gabbai / Coordinator</div>
+          <div class="value placeholder">Name TBD</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card contact-card" id="contact">
+      <h2>Questions?</h2>
+      <p>Reach out to the Jewish Life office for anything related to the Mechitza Minyan.</p>
+      <p><a class="email" href="mailto:jewishlife@jbha.org">jewishlife@jbha.org</a></p>
+      <p><a class="email" href="tel:610.922.2300">610.922.2300</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Related</h2>
+      <ul class="resource-list">
+        <li><a href="https://www.jbha.org/student-life/jewish-life"><span class="res-name">Jewish Life at Barrack</span></a></li>
+        <li><a href="https://www.jbha.org/fs/pages/1772"><span class="res-name">Shaharit &amp; Tefillah Options</span></a></li>
+        <li><a href="https://www.jbha.org/fs/pages/1771"><span class="res-name">Shabbat Observances</span></a></li>
+      </ul>
+    </section>
+  </aside>
+</main>
+
+<p class="page-footnote">Jack M. Barrack Hebrew Academy &middot; Mechitza Minyan Portal</p>
+
+</body>
+</html>
