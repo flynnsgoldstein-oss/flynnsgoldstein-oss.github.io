@@ -634,14 +634,22 @@
     <p>Shared tracking sheet for davening, leyning, and aliyah assignments. Editable by rabbeim and gabbaim.</p>
     <div class="sheet-embed">
       <iframe
-        src="https://docs.google.com/spreadsheets/d/1EUUzFOvKNNzAQcL_6VmwAYss_xSNGk8APyKrqZYvzLo/preview"
+        src="https://docs.google.com/spreadsheets/d/1EUUzFOvKNNzAQcL_6VmwAYss_xSNGk8APyKrqZYvzLo/edit?usp=sharing&rm=minimal&widget=true&headers=false&chrome=false"
         loading="lazy"
         allowfullscreen>
       </iframe>
     </div>
     <p class="placeholder" style="margin-top:16px;">
-      [Placeholder: This embeds the live Google Sheet. Make sure its sharing setting is "Anyone with the link"
-      (Viewer or Editor, as appropriate) or the embed will show an access-denied screen instead of the sheet.]
+      [Placeholder: This embeds the live Google Sheet in EDIT mode so rabbeim/gabbaim can type directly into
+      it. For this to work for everyone: (1) the sheet's sharing setting must be "Anyone with the link → Editor"
+      (Viewer-only sharing will show a read-only/preview instead), and (2) whoever is viewing this page needs to
+      not be blocked by their organization's Google Workspace settings from loading Sheets inside an iframe on a
+      non-Google domain. If your school's Google Workspace has "iframe embedding" restricted, the sheet will
+      refuse to load here (blank box or "refused to connect") no matter the sharing setting — in that case, keep
+      a "Open in Google Sheets" link as a fallback (see below) so people can always get to it.]
+    </p>
+    <p style="margin-top:10px;">
+      <a href="https://docs.google.com/spreadsheets/d/1EUUzFOvKNNzAQcL_6VmwAYss_xSNGk8APyKrqZYvzLo/edit?usp=sharing" target="_blank" rel="noopener" class="admin-link">Open this sheet in a new tab &rarr;</a>
     </p>
   </div>
 </section>
@@ -760,19 +768,16 @@
       portalModal.hidden = true;
     }
 
+    // Every click on the Rabbi/Gabbi Portal tab asks for the password again —
+    // there is no "remember me" / unlocked session here on purpose.
     rabbiTab.addEventListener('click', function (e) {
       e.preventDefault();
-      if (sessionStorage.getItem('rabbiPortalUnlocked') === '1') {
-        showView(portalPage);
-      } else {
-        openPortalModal();
-      }
+      openPortalModal();
     });
 
     portalForm.addEventListener('submit', function (e) {
       e.preventDefault();
       if (portalInput.value === getPortalPassword()) {
-        sessionStorage.setItem('rabbiPortalUnlocked', '1');
         closePortalModal();
         showView(portalPage);
       } else {
@@ -860,7 +865,6 @@
       }
 
       setPortalPassword(pw1);
-      sessionStorage.removeItem('rabbiPortalUnlocked'); // require the new password next time
       newPassword1.value = '';
       newPassword2.value = '';
       adminFormSuccess.hidden = false;
